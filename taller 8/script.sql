@@ -48,49 +48,57 @@ create trigger tr_mod_operaciones after update or insert or delete
 	for each row
 	execute procedure auditoria();
 
-insert into propiedades (superficie, superficieconstruida, dueno, tipo_propiedad, provincia) select 250, 100, '20319956-2', 2, 3;
-update propiedades set superficie = 230 where dueno = '20319956-2' and tipo_propiedad = 2;
-
-delete from propiedades where dueno = '20319956-2';
-
 select * from transacciones;
 
 -- ejercicio 2 --
 --creación tabla ventasxmes
---creación tabla ventasxmes
 DROP TABLE if exists ventasxmes;
 create table ventasxmes(
-	mesAnio timestamp not null,
+	mesAnio varchar not null,
 	vendedor varchar not null,
-	transaccion varchar not null,
-	cant_transaccion varchar,
-	monto_transaccion varchar
+	tipo_transaccion varchar not null,
+	cant_transaccion integer,
+	monto_transaccion integer
 );
 
-
---funcion trigger
+-- funcion trigger sumarizacion
 create or replace function sumarizacion() returns trigger as
 $$
+	declare 
+		vended varchar;
+		tipo varchar;
 	begin
-		insert into ventasxmes (mesAnio,vendedor,transaccion,cant_transaccion,monto_transaccion)
-			values(now(),current_user,new.tipo_operacion,new.id_propiedad,new.precio);
-		return(new);	
+		vended := nombre from vendedores where id_vendedor = new.vendedor;
+		tipo := tipo_operacion from tipos_operaciones where id_tipooperacion = new.tipo_operacion;
+		if exists (select * from ventasxmes 
+				   where ventasxmes.vendedor = vended and mesAnio = to_char(new.fechaoperacion, 'MM-YYYY') and tipo = tipo_transaccion) then
+			update ventasxmes 
+				set monto_transaccion = new.precio + monto_transaccion, cant_transaccion = cant_transaccion + 1 -- se aumenta el monto de la transaccion por mes y la cantidad de transaccion
+				where vendedor = vended and mesAnio = to_char(new.fechaoperacion, 'MM-YYYY') and  tipo_transaccion = tipo;
+		else 
+			insert into ventasxmes (mesAnio,vendedor,tipo_transaccion,cant_transaccion,monto_transaccion)
+				values(to_char(new.fechaoperacion, 'MM-YYYY'),vended,tipo, 1, new.precio);
+		end if;
+		return new;	
 	end;
-$$
-language plpgsql;
+$$ language plpgsql;
 
-create trigger upd_precios after update on operaciones
+-- creacion del trigger para la tabla de operaciones de sumarizacion
+create trigger upd_precios 
+	after update or insert 
+	on operaciones
 	for each row
 	execute procedure sumarizacion();
 
-update operaciones set precio = '43432'
-where id_propiedad = '29' and comprador ='28883432-6';
-
-select * from operaciones where id_propiedad='29'; 
 select * from ventasxmes;
+insert into operaciones(id_propiedad, fechaalta, tipo_operacion, precio, fechaoperacion, vendedor, comprador) 
+values(106, '23-11-2021'::date, 1, 1, now(), 3,  '28883432-6');
+
+update operaciones 
+	set precio = 1
+	where comprador = '28883432-6' and tipo_operacion = 1;
 
 -- ejercicio 3 --
-drop function  if exists validarPropiedad cascade;
 create or replace function validarPropiedad() returns trigger as
 $$	
 	declare
@@ -99,19 +107,17 @@ $$
 	begin
 		provinc :=  provincia from provincias where new.provincia = id_provincia;
 		tipo :=  tipo_propiedad from tipos_propiedades where new.tipo_propiedad = id_tipo;
-
-		if (provinc = 'Lleida' and tipo = 'Parking' and new.superficie >= 100) then	
-			return new;
-		elsif (provinc = 'Tarragona' and tipo = 'Casa' and new.superficieconstruida <= new.superficie) then
-			return new;
-		elsif (provinc = 'Girona' and tipo = 'Suelo' and new.superficie >= 200) then
-			return new;
-		elsif (provinc = 'Barcelona' and new.superficieconstruida <= new.superficie * 2 )then
-			return new;
-		elsif (tipo = 'Industrial' and new.superficie >= 500) then
-			return new;
-		else 
-			raise exception 'El registro ingresado no cumple con las restricciones establecidas por los reguladores.';
+		
+		if (provinc = 'Lleida' and tipo = 'Parking' and new.superficie < 100) then	
+			raise exception 'La superficie minima para parking en Lleida es de 100.';
+		elsif (provinc = 'Tarragona' and tipo = 'Casa' and new.superficieconstruida > new.superficie * 3) then
+			raise exception 'La superficie maxima construida para casa en Tarragona es 3 veces la del suelo.';
+		elsif (provinc = 'Girona' and tipo = 'Suelo' and new.superficie < 200) then
+			raise exception 'La superficie minima para Suelo en Girona es de 200.';
+		elsif (provinc = 'Barcelona' and new.superficieconstruida > new.superficie * 2 )then
+			raise exception 'La superficie construida maxima en barcelona es el doble del terreno.';
+		elsif (tipo = 'Industrial' and new.superficie < 500) then
+			raise exception 'La superficie minima para propiedades Industrial es de 500.';
 		end if;
 		return new;
 	end;
@@ -124,7 +130,15 @@ create trigger validar_propiedad before
 	for each row
 	execute procedure validarPropiedad();
 
-insert into propiedades (superficie, superficieconstruida, dueno, tipo_propiedad, provincia) values (500, 40, '20319956-2', 1, 2);
+insert into propiedades(tipo_propiedad, provincia, superficie, superficieconstruida, dueno) values(5, 1, 1, 4, '48479320-4');
+select * from propiedades where tipo_propiedad = 5 and  provincia = 1 and superficie = 1 and superficieconstruida = 3 and dueno = '48479320-4'
+
+
+
+
+
+
+
 
 
 
