@@ -1,4 +1,4 @@
-# Taller 3 
+# Taller 2 
 
 ### Objetivo:
 Conocimiento de técnicas ETL: Comando Copy, funciones de transformación de tipos ( CAST, to_date, etc.), Insert into, select into.
