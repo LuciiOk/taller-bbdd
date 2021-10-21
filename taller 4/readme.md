@@ -1,4 +1,4 @@
-### Taller 4: Agrupamiento y conjuntos
+# Taller 4: Agrupamiento y conjuntos
 
 ### Objetivo:
 Realizar consultas SQL que contemplen el uso de operadores de grupos, sentencias Having y Operadores de Conjuntos.
@@ -10,7 +10,7 @@ Realizar consultas SQL que contemplen el uso de operadores de grupos, sentencias
 
 2.-  Realice una consulta de muestre  por cada provincia , por cada tipo de propiedad y por cada tipo de operación, el valor de la propiedad DISPONIBLE más económica,  
 #### Ejemplo:
- _Barcelona, Casa, Alquiler, 330885_
+ ```_Barcelona, Casa, Alquiler, 330885_```
 
 
 3.-   Realice una consulta que muestre el nombre de todos los arrendatarios que no son propietarios de ninguna propiedad..  
