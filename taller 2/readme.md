@@ -9,6 +9,6 @@ Realice las siguientes tareas:
 
 Recomendación: 
 
-•	Transforme la planilla Excel a CSV antes de importarla (separado por coma, no punto y coma).
-•	Cargue la planilla en una tabla temporal que contenga todos los campos de ésta, y luego mediante instrucciones
-  Select Into o Insert into llene el resto de las tablas.
+-    Transforme la planilla Excel a CSV antes de importarla (separado por coma, no punto y coma).
+-    Cargue la planilla en una tabla temporal que contenga todos los campos de ésta, y luego mediante instrucciones
+     Select Into o Insert into llene el resto de las tablas.
