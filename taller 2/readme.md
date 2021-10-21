@@ -1,4 +1,4 @@
-# Taller 2 
+# Taller 2: CARGA DE DATOS (ETL)
 
 ### Objetivo:
 Conocimiento de técnicas ETL: Comando Copy, funciones de transformación de tipos ( CAST, to_date, etc.), Insert into, select into.
